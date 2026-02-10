@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LifeLine | Bed Tracker</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; }
+        .btn { padding: 8px 12px; cursor: pointer; border: none; border-radius: 4px; color: white; }
+        .btn-plus { background: #28a745; }
+        .btn-minus { background: #dc3545; }
+        .status { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Hospital Bed Availability (Live)</h1>
+    <div id="hospital-list"></div>
+
+    <script>
+        async function fetchHospitals() {
+            const res = await fetch('http://localhost:5000/api/hospitals');
+            const data = await res.json();
+            const list = document.getElementById('hospital-list');
+            list.innerHTML = '';
+            
+            data.forEach(h => {
+                list.innerHTML += `
+                    <div class="card">
+                        <div>
+                            <strong>${h.name}</strong><br>
+                            Available Beds: <span class="status">${h.beds}</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-plus" onclick="updateBed(${h.id}, 1)">+ Add</button>
+                            <button class="btn btn-minus" onclick="updateBed(${h.id}, -1)">- Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function updateBed(id, change) {
+            await fetch('http://localhost:5000/api/update', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, change })
+            });
+            fetchHospitals(); // Refresh list
+        }
+
+        fetchHospitals(); // Initial load
+        setInterval(fetchHospitals, 5000); // Auto-refresh every 5 seconds
+    </script>
+</body>
+</html>
