@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifeLine | Login</title>
+    <style>
+        /* Reusing styles from Register for consistency */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover; height: 100vh; display: flex; justify-content: center; align-items: center;
+        }
+        .form-card { background: white; padding: 40px; border-radius: 15px; width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        .btn-login { width: 100%; padding: 13px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        #message { text-align: center; margin-top: 15px; color: red; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2>LifeLine Login</h2>
+        <select id="role">
+            <option value="patient">Patient / Citizen</option>
+            <option value="hospital">Hospital Staff</option>
+        </select>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button class="btn-login" onclick="handleLogin()">Login</button>
+        <div id="message"></div>
+        <div style="text-align: center; margin-top: 15px; font-size: 14px;">
+            New user? <a href="register.html" style="color: #007bff; text-decoration: none;">Register here</a>
+        </div>
+    </div>
+
+    <script>
+        async function handleLogin() {
+            const role = document.getElementById('role').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('message');
+
+            try {
+                const res = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('userRole', data.role);
+                    localStorage.setItem('userName', data.name);
+                    window.location.href = 'index.html'; // Points to Dashboard
+                } else { msg.innerText = data.message; }
+            } catch (err) { msg.innerText = "Error: Backend Offline"; }
+        }
+    </script>
+</body>
+</html>
